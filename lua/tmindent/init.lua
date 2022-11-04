@@ -1,5 +1,5 @@
-local ts_compat = require("tindent.ts_compat")
-local r = require("tindent.rules")
+local ts_compat = require("tmindent.ts_compat")
+local r = require("tmindent.rules")
 
 local M = {}
 
@@ -8,7 +8,7 @@ function M.jsregex_available()
 end
 
 function M.test_rule(lang, pattern_key, line)
-	local lang_rule = vim.g.tindent["overrides_" .. lang]
+	local lang_rule = vim.g.tmindent["overrides_" .. lang]
 	if not lang_rule then
 		lang_rule = r.rules[lang] or r.default_rule
 	end
@@ -35,12 +35,12 @@ function M.get_buf_indent(bufnr, lnum)
 	end)
 end
 
-function M.setup(conf)
+function M.setupft_to_parser(conf)
 	if conf.use_jsregex ~= nil then
-		vim.g.tindent.use_jsregex = conf.use_jsregex
+		vim.g.tmindent.use_jsregex = conf.use_jsregex
 	end
 	if conf.enabled ~= nil then
-		vim.g.tindent.enabled = conf.enabeld
+		vim.g.tmindent.enabled = conf.enabeld
 	end
 	r.overrides(conf.overrides, conf.default_rule)
 end

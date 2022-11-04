@@ -1,7 +1,7 @@
 let s:rule_setup = v:false
 
 function s:jsregex_available() abort
-  return luaeval("require('tindent').jsregex_available()")
+  return luaeval("require('tmindent').jsregex_available()")
 endfunction
 
 function s:setup_rules() abort
@@ -10,26 +10,26 @@ function s:setup_rules() abort
   endif
   let s:rule_setup = v:true
 
-  if !has_key(g:tindent, "rules")
+  if !has_key(g:tmindent, "rules")
     " TODO: how to translate js regex to vim ? (max 10 capture group limit)
-    let g:tindent.rules = #{
+    let g:tmindent.rules = #{
       \ lua: #{ increase_pattern: '^\(\(\%(--\)\@!\).\)*\(\(\<\%(else\|function\|then\|do\|repeat\)\>\(\(\<\%(end\|until\)\>\)\@!.\)*\)\|\({\s*\)\)$', decrease_pattern: '^\s*\(\(\<\%(elseif\|else\|end\|until\)\>\)\|}\)' },
       \ }
   endif
 
-  if !has_key(g:tindent, "default_rule")
+  if !has_key(g:tmindent, "default_rule")
     " TODO
-    let g:tindent.default_rule = #{ increase_pattern: "", decrease_pattern: "" }
+    let g:tmindent.default_rule = #{ increase_pattern: "", decrease_pattern: "" }
   endif
 endfunction
 
 function s:test_rule(lang, pattern_key, line) abort
   call s:setup_rules()
 
-  if g:tindent.use_jsregex()
-    return luaeval("require('tindent').test_rule(_A[1], _A[2], _A[3])", [a:lang, a:pattern_key, a:line])
+  if g:tmindent.use_jsregex()
+    return luaeval("require('tmindent').test_rule(_A[1], _A[2], _A[3])", [a:lang, a:pattern_key, a:line])
   else
-    let rule = get(g:tindent, "overrides_".a:lang, get(g:tindent.rules, a:lang, g:tindent.default_rule))
+    let rule = get(g:tmindent, "overrides_".a:lang, get(g:tmindent.rules, a:lang, g:tmindent.default_rule))
     return has_key(rule, key) && a:line =~# rule[key]
   endif
 endfunction
@@ -48,11 +48,11 @@ endfunction
 
 function s:get_buf_indent(buf, lnum) abort
   if has('nvim')
-    return luaeval("require('tindent').get_buf_indent(_A[1], _A[2])", [a:buf, a:lnum - 1])
+    return luaeval("require('tmindent').get_buf_indent(_A[1], _A[2])", [a:buf, a:lnum - 1])
   endif
 
   if bufnr() != buf
-    echo "[tindent]: Warning! The indent calculation might be wrong as the bufnr doesn't match with the current buffer." 
+    echo "[tmindent]: Warning! The indent calculation might be wrong as the bufnr doesn't match with the current buffer." 
   endif
   return indent(lnum)
 endfunction
@@ -60,7 +60,7 @@ endfunction
 function s:get_lang_at_line(buf, lnum) abort
   let lang = getbufvar(a:buf, "&filetype")
   if has('nvim')
-    let lang = luaeval("require('tindent').get_lang_at_line(_A[1], _A[2])", [a:buf, a:lnum - 1])
+    let lang = luaeval("require('tmindent').get_lang_at_line(_A[1], _A[2])", [a:buf, a:lnum - 1])
   endif
   return lang
 endfunction
@@ -113,31 +113,22 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   let prev_line = s:get_buf_line(a:buf, prev_lnum)
   let prev_indent = s:get_buf_indent(a:buf, prev_lnum)
 
+  echo prev_line prev_indent
   if s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
+    echo "!"
     return prev_indent + s:get_shift(a:buf)
   elseif s:should_decrease(lang, prev_line)
-    return prev_indent + s:get_buf_indent(a:buf, prev_lnum)
+    echo "?"
+    return prev_indent
   else
     if prev_lnum == 1
       return prev_indent
     endif
 
     for i in range(prev_lnum - 1, 1, -1)
-      let base = s:get_buf_indent(a:buf, i)
-      let line = s:get_buf_line(a:buf, i)
-      if s:should_increase(lang, line)
-        return base + s:get_shift(a:buf)
-      elseif s:should_decrease(lang, line)
-        return base
-      elseif s:should_indent_next(lang, line)
-        let stopline = 0
-        for j in range(i - 1, 1, -1)
-          if s:should_indent_next(lang, s:get_buf_line(a:buf, j))
-            continue
-          endif
-          let stopline = j
-        endfor
-        return s:get_buf_indent(a:buf, j + 1)
+      if !s:should_indent_next(lang, i)
+        echo i
+        return s:get_buf_indent(a:buf, i + 1)
       endif
     endfor
 
@@ -145,7 +136,7 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   endif
 endfunction
 
-function tindent#get_indent(lnum, buf) abort
+function tmindent#get_indent(lnum, buf) abort
   let buf = a:buf == v:null ? bufnr() : a:buf
   let lang = s:get_lang_at_line(a:buf, a:lnum)
 
@@ -159,12 +150,12 @@ function tindent#get_indent(lnum, buf) abort
   endif
 endfunction
 
-function tindent#indentexpr() abort
-  return tindent#get_indent(v:lnum, bufnr())
+function tmindent#indentexpr() abort
+  return tmindent#get_indent(v:lnum, bufnr())
 endfunction
 
-function tindent#attach() abort
-  if g:tindent.enabled()
-    setlocal indentexpr=tindent#indentexpr()
+function tmindent#attach() abort
+  if g:tmindent.enabled()
+    setlocal indentexpr=tmindent#indentexpr()
   endif
 endfunction

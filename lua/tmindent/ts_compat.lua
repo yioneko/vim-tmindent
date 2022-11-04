@@ -9,10 +9,15 @@ function M.get_parser(bufnr, lang)
 	return vim.treesitter.get_parser(bufnr, lang)
 end
 
+local builtin_map = {
+	javascriptreact = 'javascript',
+	typescriptreact = "tsx",
+}
+
 function M.get_ft_from_parser(parser_lang)
 	local ok, ts_parser = pcall(require, "nvim-treesitter.parsers")
 	if ok then
-		for ft, parser in ipairs(ts_parser.ft_to_parser) do
+		for ft, parser in pairs(builtin_map) do
 			if parser == parser_lang then
 				return ft
 			end
@@ -40,7 +45,9 @@ function M.get_lang_at_line_ts(bufnr, lnum)
 	end
 	local col = M.get_first_nonblank_col_at_line(bufnr, lnum)
 	local lang_tree = parser:language_for_range({ lnum, col, lnum, col })
-	return lang_tree:lang()
+	if lang_tree then
+		return M.get_ft_from_parser(lang_tree:lang())
+	end
 end
 
 return M

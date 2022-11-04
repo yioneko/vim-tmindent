@@ -12,7 +12,7 @@ function M.overrides(conf, default)
 			local ok, compiled = pcall(jsregexp.compile, pattern, "g")
 			if not ok then
 				vim.schedule(function()
-					vim.notify_once(string.format("[vim-tindent]: Compile regex for %s failed. %s", lang, compiled))
+					vim.notify_once(string.format("[tmindent]: Compile regex for %s failed. %s", lang, compiled))
 				end)
 			else
 				M.rules[lang][k] = compiled
@@ -24,7 +24,7 @@ function M.overrides(conf, default)
 		local ok, compiled = pcall(jsregexp.compile, pattern, "g")
 		if not ok then
 			vim.schedule(function()
-				vim.notify_once(string.format("[vim-tindent]: Compile defauult regex s failed. %s", compiled))
+				vim.notify_once(string.format("[tmindent]: Compile default regex failed. %s", compiled))
 			end)
 		else
 			M.default_rule[k] = compiled
@@ -67,8 +67,18 @@ M.overrides({
 		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
 	},
 	typescript = {
-		decrease_pattern = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$",
 		increase_pattern = "^((?!//).)*(\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)$",
+		decrease_pattern = "^((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*$",
+		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
+	},
+	javascriptreact = {
+		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*))$",
+		decrease_pattern = "^(((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*)|(\\s+<\\/([_:\\w][_:\\w-.\\d]*)\\s*>)|([^<]*>\\s*)$",
+		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
+	},
+	typescriptreact = {
+		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*))$",
+		decrease_pattern = "^(((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*)|(\\s+<\\/([_:\\w][_:\\w-.\\d]*)\\s*>)|([^<]*>\\s*)$",
 		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
 	},
 	yaml = {
@@ -79,6 +89,9 @@ M.overrides({
 		increase_pattern = "<(?!\\?|(?:area|base|br|col|frame|hr|html|img|input|keygen|link|menuitem|meta|param|source|track|wbr)\\b|[^>]*\\/>)([-_\\.A-Za-z0-9]+)(?=\\s|>)\\b[^>]*>(?!.*<\\/\\1>)|<!--(?!.*-->)|\\{[^}\"']*$",
 		decrease_pattern = "^\\s*(<\\/(?!html)[-_\\.A-Za-z0-9]+\\b[^>]*>|-->|\\})",
 	},
+	python = {
+		increase_pattern = "^\\s*(?:def|class|for|if|elif|else|while|try|with|finally|except|async).*?:\\s*$",
+	},
 	-- from https://github.com/johnsoncodehk/volar/blob/76abcdd5d9457893f50122410a58b2c3145c7dea/extensions/vscode-vue-language-features/languages/vue-language-configuration.json
 	vue = {
 		increase_pattern = "<(?!\\?|(?:area|base|br|col|frame|hr|html|img|input|keygen|link|menuitem|meta|param|source|track|wbr|script|style)\\b|[^>]*\\/>)([-_\\.A-Za-z0-9]+)(?=\\s|>)\\b[^>]*>(?!\\s*\\()(?!.*<\\/\\1>)|<!--(?!.*-->)|\\{[^}\"']*$",
@@ -88,8 +101,5 @@ M.overrides({
 	increase_pattern = "^.*\\{[^}\"']*$|^.*\\([^\\)\"']*$",
 	decrease_pattern = "^\\s*(\\s*\\/[*].*[*]\\/\\s*)*[})]",
 })
-
-M.rules.javascriptreact = M.rules.javascript
-M.rules.typescriptreact = M.rules.typescript
 
 return M
