@@ -54,7 +54,7 @@ call tmindent#get_indent(lnum, bufnr) " lnum is 1-indexed
 require('tmindent').get_indent(lnum, bufnr) -- NOTE: lnum is 0-indexed
 ```
 
-### nvim-yati
+### [nvim-yati](yioneko/nvim-yati)
 
 ```lua
 local tm_fts = { "lua", "javascript", "python" } -- or any other langs
@@ -67,7 +67,8 @@ require("nvim-treesitter.configs").setup {
         end
         -- or any other fallback methods
         return require('nvim-yati.fallback').vim_auto(lnum, computed, bufnr)
-    end},
+    end,
+  }
 }
 ```
 

@@ -51,8 +51,7 @@ let s:rules_raw = {
       \   },
       \   'vim': #{
       \     comment: ['^"'],
-      \     inherit: ['&{}', '&()', '&[]'],
-      \     increase: ['\v<%(function|if|else|elseif|while|for|augroup)>((<%(endif|endfor|endfunction|END)>)@!.)*$'],
+      \     increase: ['\v<%(function|if|else|elseif|while|for|try|catch|finally|augroup)>((<%(endif|endfor|endfunction|endtry|END)>)@!.)*$'],
       \     decrease: ['\v^<%(endif|endfor|endfunction)>', '^augroup\s\+END'],
       \   },
       \   'python': #{
