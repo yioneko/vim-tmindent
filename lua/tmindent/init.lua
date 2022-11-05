@@ -53,6 +53,10 @@ function M.is_enabled()
 	return vim.api.nvim_eval("g:tmindent.enabled()")
 end
 
+function M.get_indent(lnum, bufnr)
+	return vim.fn["tmindent#get_indent"](lnum + 1, bufnr)
+end
+
 function M.setup(conf)
 	if not vim.g.tmindent then
 		vim.g.tmindent = vim.empty_dict()

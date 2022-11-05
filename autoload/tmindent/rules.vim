@@ -32,7 +32,7 @@ let s:default_rule_raw = #{
       \     inherit: ['&{}', '&[]', '&()']
       \}
 
-let s:rules_raw= {
+let s:rules_raw = {
       \   'c': #{
       \     comment: ['^//', '^*'],
       \     inherit: ['&{}', '&()', '&[]'],

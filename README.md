@@ -8,7 +8,7 @@ See [available rules](./autoload/tmindent/rules.vim) for supported languages.
 
 ## Usage
 
-For vim user:
+### Vim
 
 ```vim
 let g:tmindent = {
@@ -20,7 +20,7 @@ let g:tmindent = {
     \}
 ```
 
-Or if you use neovim:
+### Neovim (Lua)
 
 ```lua
 require('tmindent').setup({
@@ -40,6 +40,35 @@ require('tmindent').setup({
         }
     }
 })
+```
+
+### Integration
+
+#### Indent API
+
+```vim
+call tmindent#get_indent(lnum, bufnr) " lnum is 1-indexed
+```
+
+```lua
+require('tmindent').get_indent(lnum, bufnr) -- NOTE: lnum is 0-indexed
+```
+
+### nvim-yati
+
+```lua
+local tm_fts = { "lua", "javascript", "python" } -- or any other langs
+
+require("nvim-treesitter.configs").setup {
+  yati = {
+    default_fallback =  function(lnum, computed, bufnr)
+        if vim.tbl_contains(tm_fts, vim.bo[bufnr].filetype) then
+            return require('tmindent').get_indent(lnum, bufnr) + computed
+        end
+        -- or any other fallback methods
+        return require('nvim-yati.fallback').vim_auto(lnum, computed, bufnr)
+    end},
+}
 ```
 
 ## Credits
