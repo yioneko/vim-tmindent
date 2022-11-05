@@ -102,7 +102,7 @@ let s:rules_raw = {
       \   'yaml': #{
       \     comment: ['^#'],
       \     inherit: ['&{}', '&()'],
-      \     increase: ['\v(\:|\-)\s?(\&\w+)?'],
+      \     increase: ['\v(\:|\-)\s?(\&\w+)?$'],
       \   },
       \}
 
