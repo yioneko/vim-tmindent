@@ -9,23 +9,20 @@ function M.get_parser(bufnr, lang)
 	return vim.treesitter.get_parser(bufnr, lang)
 end
 
-local builtin_map = {
-	javascriptreact = 'javascript',
-	typescriptreact = "tsx",
+-- These langs are not reliable, faillback to vim filetype
+local ambiguous_parser_langs = {
+	"javascript",
+}
+
+local parser_lang_ft_map = {
+	tsx = "typescriptreact",
 }
 
 function M.get_ft_from_parser(parser_lang)
-	local ok, ts_parser = pcall(require, "nvim-treesitter.parsers")
-	if ok then
-		for ft, parser in pairs(builtin_map) do
-			if parser == parser_lang then
-				return ft
-			end
-		end
+	if vim.tbl_contains(ambiguous_parser_langs, parser_lang) then
+		return
 	end
-
-	-- Ok, we don't have another reliable way to find the correspond filetype
-	return parser_lang
+	return parser_lang_ft_map[parser_lang] or parser_lang
 end
 
 function M.get_buf_line(bufnr, lnum)

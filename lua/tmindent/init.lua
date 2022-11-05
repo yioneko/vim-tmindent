@@ -35,7 +35,7 @@ function M.get_buf_indent(bufnr, lnum)
 	end)
 end
 
-function M.setupft_to_parser(conf)
+function M.setup(conf)
 	if conf.use_jsregex ~= nil then
 		vim.g.tmindent.use_jsregex = conf.use_jsregex
 	end

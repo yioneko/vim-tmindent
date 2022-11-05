@@ -37,8 +37,12 @@ M.overrides({
 		increase_pattern = "^((?!(\\-\\-)).)*((\\b(else|function|then|do|repeat)\\b((?!\\b(end|until)\\b).)*)|(\\{\\s*))$",
 		decrease_pattern = "^\\s*((\\b(elseif|else|end|until)\\b)|(\\})|(\\)))",
 	},
+	vim = {
+		increase_pattern = '^((?!").)*((\\b(function|if|else|elseif|while|for)\\b((?!\\b(endif|endfor|endfunction)\\b).)*)|(\\{\\s*))|(\\[\\s*))$',
+		decrease_pattern = "^[\\s\\\\]*((\\b(endif|endfor|endfunction)\\b)|(\\})|(\\))|(\\]))",
+	},
 	json = {
-		increase_pattern = '({+(?=((\\\\.|[^"\\\\])*"(\\\\.|[^"\\\\])*")*[^"}]*)$)|(\\[+(?=((\\\\.|[^"\\\\])*"(\\\\.|[^"\\\\])*")*[^"\\]]*)$)',
+		increase_pattern = '({+(?=([^"]*"[^"]*")*[^"}]*$))|(\\[+(?=([^"]*"[^"]*")*[^"\\]]*$))',
 		decrease_pattern = "^\\s*[}\\]],?\\s*$",
 	},
 	go = {
@@ -72,12 +76,12 @@ M.overrides({
 		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
 	},
 	javascriptreact = {
-		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*))$",
+		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*)|>)$",
 		decrease_pattern = "^(((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*)|(\\s+<\\/([_:\\w][_:\\w-.\\d]*)\\s*>)|([^<]*>\\s*)$",
 		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
 	},
 	typescriptreact = {
-		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*))$",
+		increase_pattern = "^((?!//).)*((\\{([^}\"'`/]*|(\\t|[ ])*//.*)|\\([^)\"'`/]*|\\[[^\\]\"'`/]*)|(<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))([_:\\w][_:\\w\\-.\\d]*)([^/>]*(?!/)>)[^<]*)|>)$",
 		decrease_pattern = "^(((?!.*?/\\*).*\\*/)?\\s*[\\}\\]].*)|(\\s+<\\/([_:\\w][_:\\w-.\\d]*)\\s*>)|([^<]*>\\s*)$",
 		unindented_pattern = "^(\\t|[ ])*[ ]\\*[^/]*\\*/\\s*$|^(\\t|[ ])*[ ]\\*/\\s*$|^(\\t|[ ])*[ ]\\*([ ]([^\\*]|\\*(?!/))*)?$",
 	},
