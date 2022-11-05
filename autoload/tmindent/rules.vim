@@ -46,7 +46,7 @@ let s:rules_raw = {
       \   'lua': #{
       \     comment: ['^--'],
       \     inherit: ['&{}', '&()'],
-      \     increase: ['\v<%(else|function|then|do|repeat)>((<%(end|until)>)@!.)*$'],
+      \     increase: ['\v<%(if|else|while|for|function|then|do|repeat)>((<%(end|until)>)@!.)*$'],
       \     decrease: ['^\v<%(elseif|else|end|until)>']
       \   },
       \   'vim': #{
