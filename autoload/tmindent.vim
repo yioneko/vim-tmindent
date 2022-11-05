@@ -46,11 +46,11 @@ endfunction
 function s:get_buf_indent(buf, lnum) abort
   if has('nvim')
     return luaeval("require('tmindent').get_buf_indent(_A[1], _A[2])", [a:buf, a:lnum - 1])
-  elseif bufnr() != buf
+  elseif bufnr() != a:buf
     echo "[tmindent]: Warning! The indent calculation might be wrong as the bufnr doesn't match with the current buffer." 
   endif
 
-  return indent(lnum)
+  return indent(a:lnum)
 endfunction
 
 function s:get_lang_at_line(buf, lnum) abort

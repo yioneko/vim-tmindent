@@ -61,7 +61,7 @@ local tm_fts = { "lua", "javascript", "python" } -- or any other langs
 
 require("nvim-treesitter.configs").setup {
   yati = {
-    default_fallback =  function(lnum, computed, bufnr)
+    default_fallback = function(lnum, computed, bufnr)
         if vim.tbl_contains(tm_fts, vim.bo[bufnr].filetype) then
             return require('tmindent').get_indent(lnum, bufnr) + computed
         end
@@ -71,6 +71,17 @@ require("nvim-treesitter.configs").setup {
   }
 }
 ```
+
+## Rule
+
+- `inherit`: list of other rules to extend
+- `comment`: pattern to match comment, which will be trimmed before following matching
+- `increase`: `increaseIndentPattern` in TextMate
+- `decrease`: `decreaseIndentPattern` in TextMate
+- `unindented`: `unindentedLinePattern` in TextMate
+- `indentnext`: `indentNextLinePattern` in TextMate
+
+Basic rules include "&{}", "&[]", "&<>", "&tag".
 
 ## Credits
 
