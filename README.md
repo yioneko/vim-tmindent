@@ -2,7 +2,7 @@
 
 [TextMate](https://macromates.com/manual/en/appendix) style indentation for (neo)vim. Also used by atom and vscode to implement auto indent.
 
-I developed this as a supplement to [nvim-yati](yioneko/nvim-yati) for saner fallback indent computation, and it could also be used as a standalone indentexpr.
+I developed this as a supplement to [nvim-yati](https://github.com/yioneko/nvim-yati) for saner fallback indent computation, and it could also be used as a standalone indentexpr.
 
 See [available rules](./autoload/tmindent/rules.vim) for supported languages.
 
@@ -54,7 +54,7 @@ call tmindent#get_indent(lnum, bufnr) " lnum is 1-indexed
 require('tmindent').get_indent(lnum, bufnr) -- NOTE: lnum is 0-indexed
 ```
 
-### [nvim-yati](yioneko/nvim-yati)
+### [nvim-yati](https://github.com/yioneko/nvim-yati)
 
 ```lua
 local tm_fts = { "lua", "javascript", "python" } -- or any other langs
