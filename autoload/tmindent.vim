@@ -48,6 +48,7 @@ endfunction
 
 function s:should_increase(lang, text) abort
   for pat in get(tmindent#rules#get(a:lang), "increase", [])
+    echo a:text =~# pat
     if a:text =~# pat
       return v:true
     endif
