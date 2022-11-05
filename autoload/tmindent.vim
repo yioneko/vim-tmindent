@@ -56,6 +56,14 @@ function s:get_lang_at_line(buf, lnum) abort
   return lang
 endfunction
 
+function s:get_lang_at_line_exclude_comment(buf, lnum) abort
+  let lang = s:get_lang_at_line(a:buf, a:lnum)
+  if s:is_comment_lang(lang)
+    let lang = getbufvar(a:buf, "&filetype")
+  endif
+  return lang
+endfunction
+
 function s:should_ignore(lang, text) abort
   for pat in get(tmindent#rules#get(a:lang), "unindented", [])
     if a:text =~# pat
@@ -93,7 +101,7 @@ function s:should_decrease(lang, text) abort
 endfunction
 
 function s:get_prev_valid_line(buf, lnum) abort
-  let cur_lang = s:get_lang_at_line(a:buf, a:lnum)
+  let cur_lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
 
   if a:lnum > 1
     let result_lnum = 0
@@ -116,7 +124,7 @@ function s:get_prev_valid_line(buf, lnum) abort
 endfunction
 
 function s:get_inherit_indent_for_line(buf, lnum) abort
-  let lang = s:get_lang_at_line(a:buf, a:lnum)
+  let lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
 
   let prev_lnum = s:get_prev_valid_line(a:buf, a:lnum)
   if prev_lnum < 1
@@ -135,7 +143,13 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
     endif
 
     for i in range(prev_lnum - 1, 1, -1)
-      if !s:should_indent_next(lang, i)
+      let prev_lang = s:get_lang_at_line(a:buf, i)
+      if s:is_comment_lang(prev_lang)
+        continue
+        " TODO: indentkeys elseif
+      elseif prev_lang != lang
+        return s:get_buf_indent(a:buf, i)
+      elseif !s:should_indent_next(lang, s:get_buf_line_trimed(a:buf, i, prev_lang))
         return s:get_buf_indent(a:buf, i + 1)
       endif
     endfor
@@ -147,12 +161,9 @@ endfunction
 function tmindent#get_indent(lnum, buf) abort
   let buf = a:buf == v:null ? bufnr() : a:buf
 
-  let lang = s:get_lang_at_line(a:buf, a:lnum)
-  if s:is_comment_lang(lang)
-    let lang = getbufvar(buf, "&filetype")
-  endif
-
   let indent = s:get_inherit_indent_for_line(buf, a:lnum)
+
+  let lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
   let line = s:get_buf_line_trimed(buf, a:lnum, lang)
 
   if s:should_decrease(lang, line)
