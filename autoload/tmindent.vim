@@ -1,3 +1,23 @@
+" Currently we cannot assign lua function to vim global varaibles,
+" and we have to separate config for vim and nvim here...
+function s:should_use_treesitter() abort
+  if has("nvim")
+    return luaeval("require('tmindent').should_use_treesitter()")
+  endif
+  return g:tmindent.use_treesitter()
+endfunction
+
+function s:is_enabled() abort
+  if has("nvim")
+    return luaeval("require('tmindent').is_enabled()")
+  endif
+  return g:tmindent.enabled()
+endfunction
+
+function s:is_comment_lang(lang) abort
+  return s:should_use_treesitter() && luaeval("require('tmindent').is_comment_lang(_A[1])", [a:lang])
+endfunction
+
 function s:get_shift(buf) abort
   let shiftwidth = getbufvar(a:buf, "&shiftwidth")
   if shiftwidth <= 0
@@ -21,17 +41,16 @@ endfunction
 function s:get_buf_indent(buf, lnum) abort
   if has('nvim')
     return luaeval("require('tmindent').get_buf_indent(_A[1], _A[2])", [a:buf, a:lnum - 1])
-  endif
-
-  if bufnr() != buf
+  elseif bufnr() != buf
     echo "[tmindent]: Warning! The indent calculation might be wrong as the bufnr doesn't match with the current buffer." 
   endif
+
   return indent(lnum)
 endfunction
 
 function s:get_lang_at_line(buf, lnum) abort
   let lang = getbufvar(a:buf, "&filetype")
-  if has('nvim')
+  if s:should_use_treesitter()
     let lang = luaeval("require('tmindent').get_lang_at_line(_A[1], _A[2])", [a:buf, a:lnum - 1])
   endif
   return lang
@@ -48,7 +67,6 @@ endfunction
 
 function s:should_increase(lang, text) abort
   for pat in get(tmindent#rules#get(a:lang), "increase", [])
-    echo a:text =~# pat
     if a:text =~# pat
       return v:true
     endif
@@ -81,8 +99,7 @@ function s:get_prev_valid_line(buf, lnum) abort
     let result_lnum = 0
     for i in range(a:lnum - 1, 1, -1)
       let prev_lang = s:get_lang_at_line(a:buf, i)
-      " TODO: ts comment lang
-      if prev_lang != "comment" && prev_lang != cur_lang
+      if !s:is_comment_lang(prev_lang) && prev_lang != cur_lang
         return result_lnum
       endif
 
@@ -108,12 +125,9 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   let prev_line = s:get_buf_line_trimed(a:buf, prev_lnum, lang)
   let prev_indent = s:get_buf_indent(a:buf, prev_lnum)
 
-  echo prev_line prev_indent
   if s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
-    echo "!"
     return prev_indent + s:get_shift(a:buf)
   elseif s:should_decrease(lang, prev_line)
-    echo "?"
     return prev_indent
   else
     if prev_lnum == 1
@@ -122,7 +136,6 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
 
     for i in range(prev_lnum - 1, 1, -1)
       if !s:should_indent_next(lang, i)
-        echo i
         return s:get_buf_indent(a:buf, i + 1)
       endif
     endfor
@@ -133,14 +146,19 @@ endfunction
 
 function tmindent#get_indent(lnum, buf) abort
   let buf = a:buf == v:null ? bufnr() : a:buf
-  " TODO: comment lang
+
   let lang = s:get_lang_at_line(a:buf, a:lnum)
+  if s:is_comment_lang(lang)
+    let lang = getbufvar(buf, "&filetype")
+  endif
 
   let indent = s:get_inherit_indent_for_line(buf, a:lnum)
   let line = s:get_buf_line_trimed(buf, a:lnum, lang)
 
   if s:should_decrease(lang, line)
     return indent - s:get_shift(buf)
+  elseif s:should_ignore(lang, line)
+    return 0
   else
     return indent
   endif
@@ -151,7 +169,7 @@ function tmindent#indentexpr() abort
 endfunction
 
 function tmindent#attach() abort
-  if g:tmindent.enabled()
+  if s:is_enabled()
     setlocal indentexpr=tmindent#indentexpr()
   endif
 endfunction

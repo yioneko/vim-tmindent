@@ -42,8 +42,8 @@ let s:rules_raw= {
       \   'vim': #{
       \     comment: ['^"'],
       \     inherit: ['&{}', '&()', '&[]'],
-      \     increase: ['<%(function|if|else|elseif|while|for)>((<%(endif|endfor|endfunction)>)@!.)*$'],
-      \     decrease: ['^<%(elseif|else|end|until)>'],
+      \     increase: ['\v<%(function|if|else|elseif|while|for|augroup)>((<%(endif|endfor|endfunction|END)>)@!.)*$'],
+      \     decrease: ['\v^<%(endif|endfor|endfunction)>', '^augroup\s\+END'],
       \   },
       \   'python': #{
       \     comment: ['^#'],
@@ -160,4 +160,3 @@ function tmindent#rules#get(lang) abort
 
   return s:get(a:lang, s:raw_get(a:lang, user_conf), user_conf)
 endfunction
-
