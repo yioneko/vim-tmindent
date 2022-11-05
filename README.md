@@ -1,8 +1,10 @@
 # vim-tmindent
 
-(**WIP**) [TextMate](https://macromates.com/manual/en/appendix) style indentation for (neo)vim. Also used by atom and vscode to implement auto indent.
+[TextMate](https://macromates.com/manual/en/appendix) style indentation for (neo)vim. Also used by atom and vscode to implement auto indent.
 
-See [available rules](./autoload/tmindent/rules.vim) for supported langauges.
+I developed this as a supplement to [nvim-yati](yioneko/nvim-yati) for saner fallback indent computation, and it could also be used as a standalone indentexpr.
+
+See [available rules](./autoload/tmindent/rules.vim) for supported languages.
 
 ## Usage
 
@@ -23,7 +25,7 @@ Or if you use neovim:
 ```lua
 require('tmindent').setup({
     enabled = function() return vim.tbl_contains({ "lua" }, vim.bo.filetype) end,
-    use_treesitter = function() return true end, -- used to differenct detect langauge region and comments
+    use_treesitter = function() return true end, -- used to detect different langauge region and comments
     default_rule = {},
     rules = {
         lua = {
@@ -39,3 +41,8 @@ require('tmindent').setup({
     }
 })
 ```
+
+## Credits
+
+- vscode
+- [vim-gindent](https://github.com/hrsh7th/vim-gindent)

@@ -33,6 +33,16 @@ let s:default_rule_raw = #{
       \}
 
 let s:rules_raw= {
+      \   'c': #{
+      \     comment: ['^//', '^*'],
+      \     inherit: ['&{}', '&()', '&[]'],
+      \     increase: ['\v<%(case|default)>.*\:\s*$'],
+      \     decrease: ['\v<%(case|default)>.*\:\s*$'],
+      \     indentnext: ['\v<%(if|while|for|switch)>((\;)@!.)*$'],
+      \   },
+      \   'cpp': #{
+      \     inherit: ['c'],
+      \   },
       \   'lua': #{
       \     comment: ['^--'],
       \     inherit: ['&{}', '&()'],
@@ -73,16 +83,22 @@ let s:rules_raw= {
       \   },
       \   'javascript': #{
       \     comment: ['^//', '^*'],
+      \     increase: ['\v<%(case|default)>.*\:\s*$'],
+      \     decrease: ['\v<%(case|default)>.*\:\s*$'],
       \     inherit: ['&{}', '&()', '&[]'],
       \   },
       \   'typescript': #{
-      \     inherit: ['javascript'],
+      \     inherit: ['javascript', '&<>'],
       \   },
       \   'javascriptreact': #{
       \     inherit: ['javascript', '&tag'],
       \   },
       \   'typescriptreact': #{
       \     inherit: ['typescript', '&tag'],
+      \   },
+      \   'rust': #{
+      \     comment: ['^//', '^*'],
+      \     inherit: ['&{}', '&()', '&[]'],
       \   },
       \   'yaml': #{
       \     comment: ['^#'],
