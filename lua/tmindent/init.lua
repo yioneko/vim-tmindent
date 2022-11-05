@@ -1,4 +1,4 @@
-local ts_compat = require("tmindent.ts_compat")
+local ts = require("tmindent.ts")
 
 local M = {}
 
@@ -15,14 +15,14 @@ local function get_first_nonblank_col_at_line(bufnr, lnum)
 end
 
 function M.get_lang_at_line(bufnr, lnum)
-	local ok, parser = pcall(ts_compat.get_parser, bufnr)
+	local ok, parser = pcall(ts.get_parser, bufnr)
 	if not ok or not parser then
 		return
 	end
 	local col = get_first_nonblank_col_at_line(bufnr, lnum)
 	local lang_tree = parser:language_for_range({ lnum, col, lnum, col })
 	if lang_tree then
-		local ts_lang = ts_compat.get_ft_from_parser(lang_tree:lang())
+		local ts_lang = ts.get_ft_from_parser(lang_tree:lang())
 		if ts_lang then
 			return ts_lang
 		end
@@ -37,7 +37,38 @@ function M.get_buf_indent(bufnr, lnum)
 	end)
 end
 
-M.is_comment_lang = ts_compat.is_comment_lang
+local comment_langs = {
+	"comment",
+	"jsdoc",
+}
+
+local comment_nodes = {
+	"comment",
+	"description",
+	"block_comment",
+}
+
+function M.is_comment_lang(lang)
+	return vim.tbl_contains(comment_langs, lang)
+end
+
+function M.get_buf_line_comment_trimed(bufnr, lnum)
+	local line = get_buf_line(bufnr, lnum)
+	local comment_filter = function(lang, node)
+		return vim.tbl_contains(comment_nodes, node:type())
+	end
+	local rcol = #line
+	local node = ts.get_node_for_range({ { lnum, rcol - 1 }, { lnum, rcol } }, bufnr, true, comment_filter)
+	if node then
+		if node:start() == lnum then
+			local _, lcol = node:start()
+			return line:sub(1, lcol)
+		else
+			return ""
+		end
+	end
+	return line
+end
 
 function M.should_use_treesitter()
 	if vim_incompt_options.use_treesitter then

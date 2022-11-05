@@ -28,6 +28,11 @@ endfunction
 
 function s:get_buf_line_trimed(buf, lnum, lang) abort
   let line = trim(getbufline(a:buf, a:lnum)[0])
+  if s:should_use_treesitter()
+    " trim comment by treesitter if possible
+    let line = luaeval("require('tmindent').get_buf_line_comment_trimed(_A[1], _A[2])", [a:buf, a:lnum - 1])
+  endif
+
   let comment_start = len(line)
   for pat in get(tmindent#rules#get(a:lang), "comment", [])
     let matched_idx = match(line, pat)
