@@ -15,7 +15,7 @@ let g:tmindent = {
     \   'enabled': { -> index(["lua", "yaml"], &filetype) >= 0 },
     \   'default_rule': {},
     \   'rules': {
-    \       'json': #{ comment: ['^//'], inherit: ['&{}', '&[]'] }
+    \       'json': #{ comment: ['//'], inherit: ['&{}', '&[]'] }
     \   }
     \}
 ```
@@ -29,7 +29,7 @@ require('tmindent').setup({
     default_rule = {},
     rules = {
         lua = {
-            comment = {'^--'},
+            comment = {'--'},
             -- inherit pair rules
             inherit = {'&{}', '&()'},
             -- these patterns are the same as TextMate's
@@ -54,7 +54,7 @@ call tmindent#get_indent(lnum, bufnr) " lnum is 1-indexed
 require('tmindent').get_indent(lnum, bufnr) -- NOTE: lnum is 0-indexed
 ```
 
-### [nvim-yati](https://github.com/yioneko/nvim-yati)
+#### [nvim-yati](https://github.com/yioneko/nvim-yati)
 
 ```lua
 local tm_fts = { "lua", "javascript", "python" } -- or any other langs

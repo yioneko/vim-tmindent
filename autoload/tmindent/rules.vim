@@ -25,6 +25,12 @@ let s:basic_rules_raw = {
   \       '\v^\/>'
   \     ],
   \   },
+  \   '&s_str': #{
+  \       string: ['\v''@<=([^''\\]|\\.)*''@=']
+  \   },
+  \   '&d_str': #{
+  \       string: ['\v"@<=([^"\\]|\\.)*"@=']
+  \   }
   \ }
 
 let s:default_rule_key = "&default"
@@ -34,8 +40,8 @@ let s:default_rule_raw = #{
 
 let s:rules_raw = {
   \   'c': #{
-  \     comment: ['^//', '^*'],
-  \     inherit: ['&{}', '&()', '&[]'],
+  \     comment: ['//', '^*'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \     increase: ['\v<%(case|default)>.*\:\s*$'],
   \     decrease: ['\v<%(case|default)>.*\:\s*$'],
   \     indentnext: ['\v<%(if|while|for|switch)>((\;)@!.)*$'],
@@ -44,35 +50,36 @@ let s:rules_raw = {
   \     inherit: ['c'],
   \   },
   \   'lua': #{
-  \     comment: ['^--'],
-  \     inherit: ['&{}', '&()'],
+  \     comment: ['--'],
+  \     inherit: ['&{}', '&()', '&s_str', '&d_str'],
   \     increase: ['\v<%(if|else|while|for|function|then|do|repeat)>((<%(end|until)>)@!.)*$'],
   \     decrease: ['^\v<%(elseif|else|end|until)>']
   \   },
   \   'vim': #{
-  \     comment: ['^"'],
+  \     comment: ['"'],
+  \     inherit: ['&s_str', '&d_str'],
   \     increase: ['\v<%(function|if|else|elseif|while|for|try|catch|finally|augroup)>((<%(endif|endfor|endfunction|endtry|END)>)@!.)*$'],
   \     decrease: ['\v^<%(endif|elseif|catch|finally|endfor|endfunction|endtry|endwhile)>', '^augroup\s\+END'],
   \   },
   \   'python': #{
-  \     comment: ['^#'],
-  \     inherit: ['&{}', '&()', '&[]'],
+  \     comment: ['#'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \     increase: ['\v<%(def|class|for|if|elif|else|while|try|with|finally|except|async)>.*\:\s*$'],
   \   },
   \   'html': #{
-  \     comment: ['^<!--'],
-  \     inherit: ['&tag'],
+  \     comment: ['<!--'],
+  \     inherit: ['&tag', '&s_str', '&d_str'],
   \   },
   \   'vue': #{
   \     inherit: ['html'],
   \   },
   \   'json': #{
-  \     comment: ['^//'],
-  \     inherit: ['&{}','&[]'],
+  \     comment: ['//'],
+  \     inherit: ['&{}','&[]', '&d_str'],
   \   },
   \   'css': #{
   \     comment: ['^*'],
-  \     inherit: ['&{}'],
+  \     inherit: ['&{}', '&s_str', '&d_str'],
   \   },
   \   'less': #{
   \     inherit: ['css'],
@@ -81,10 +88,10 @@ let s:rules_raw = {
   \     inherit: ['css'],
   \   },
   \   'javascript': #{
-  \     comment: ['^//', '^*'],
+  \     comment: ['//', '^*'],
   \     increase: ['\v<%(case|default)>.*\:\s*$'],
   \     decrease: ['\v<%(case|default)>.*\:\s*$'],
-  \     inherit: ['&{}', '&()', '&[]'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \   },
   \   'typescript': #{
   \     inherit: ['javascript', '&<>'],
@@ -96,12 +103,12 @@ let s:rules_raw = {
   \     inherit: ['typescript', '&tag'],
   \   },
   \   'rust': #{
-  \     comment: ['^//', '^*'],
-  \     inherit: ['&{}', '&()', '&[]'],
+  \     comment: ['//', '^*'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \   },
   \   'yaml': #{
-  \     comment: ['^#'],
-  \     inherit: ['&{}', '&()'],
+  \     comment: ['#'],
+  \     inherit: ['&{}', '&()', '&s_str', '&d_str'],
   \     increase: ['\v(\:|\-)\s?(\&\w+)?$'],
   \   },
   \ }
@@ -136,6 +143,7 @@ endfunction
 function s:build(raw_rule, conf) abort
   let res = #{
   \   comment: get(a:raw_rule, "comment", []),
+  \   string: get(a:raw_rule, "string", []),
   \   increase: get(a:raw_rule, "increase", []),
   \   decrease: get(a:raw_rule, "decrease", []),
   \   unindented: get(a:raw_rule, "unindented", []),
@@ -149,6 +157,9 @@ function s:build(raw_rule, conf) abort
     for p in get(rhs, "comment", [])
       call add(res.comment, p)
     endfor
+    for p in get(rhs, "string", [])
+      call add(res.string, p)
+      endfor
     for p in get(rhs, "increase", [])
       call add(res.increase, p)
     endfor

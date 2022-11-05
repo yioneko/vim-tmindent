@@ -26,11 +26,11 @@ function s:get_shift(buf) abort
   return shiftwidth
 endfunction
 
-function s:get_buf_line_trimed(buf, lnum, lang) abort
+function s:get_buf_line_processed(buf, lnum, lang) abort
   let line = trim(getbufline(a:buf, a:lnum)[0])
   if s:should_use_treesitter()
     " trim comment by treesitter if possible
-    let line = luaeval("require('tmindent').get_buf_line_comment_trimed(_A[1], _A[2])", [a:buf, a:lnum - 1])
+    let line = trim(luaeval("require('tmindent').get_buf_line_comment_trimed(_A[1], _A[2])", [a:buf, a:lnum - 1]))
   endif
 
   let comment_start = len(line)
@@ -40,7 +40,13 @@ function s:get_buf_line_trimed(buf, lnum, lang) abort
       let comment_start = matched_idx
     endif
   endfor
-  return strpart(line, 0, comment_start)
+  let processed = strpart(line, 0, comment_start)
+
+  for pat in get(tmindent#rules#get(a:lang), "string", [])
+    let processed = substitute(processed, pat, { m -> repeat(" ", len(m[0])) }, 'g')
+  endfor
+
+  return processed
 endfunction
 
 function s:get_buf_indent(buf, lnum) abort
@@ -116,7 +122,7 @@ function s:get_prev_valid_line(buf, lnum) abort
         return result_lnum
       endif
 
-      let line = s:get_buf_line_trimed(a:buf, i, cur_lang)
+      let line = s:get_buf_line_processed(a:buf, i, cur_lang)
       if !s:should_ignore(cur_lang, line) && line !~# '^\s*$'
         return i
       endif
@@ -135,7 +141,7 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   if prev_lnum < 1
     return 0
   endif
-  let prev_line = s:get_buf_line_trimed(a:buf, prev_lnum, lang)
+  let prev_line = s:get_buf_line_processed(a:buf, prev_lnum, lang)
   let prev_indent = s:get_buf_indent(a:buf, prev_lnum)
 
   if s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
@@ -154,7 +160,7 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
         " TODO: indentkeys elseif
       elseif prev_lang != lang
         return s:get_buf_indent(a:buf, i)
-      elseif !s:should_indent_next(lang, s:get_buf_line_trimed(a:buf, i, prev_lang))
+      elseif !s:should_indent_next(lang, s:get_buf_line_processed(a:buf, i, prev_lang))
         return s:get_buf_indent(a:buf, i + 1)
       endif
     endfor
@@ -169,7 +175,7 @@ function tmindent#get_indent(lnum, buf) abort
   let indent = s:get_inherit_indent_for_line(buf, a:lnum)
 
   let lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
-  let line = s:get_buf_line_trimed(buf, a:lnum, lang)
+  let line = s:get_buf_line_processed(buf, a:lnum, lang)
 
   if s:should_decrease(lang, line)
     return indent - s:get_shift(buf)

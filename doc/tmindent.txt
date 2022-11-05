@@ -21,7 +21,7 @@ VIM ~
         \   'enabled': { -> index(["lua", "yaml"], &filetype) >= 0 },
         \   'default_rule': {},
         \   'rules': {
-        \       'json': #{ comment: ['^//'], inherit: ['&{}', '&[]'] }
+        \       'json': #{ comment: ['//'], inherit: ['&{}', '&[]'] }
         \   }
         \}
 <
@@ -36,7 +36,7 @@ NEOVIM (LUA) ~
         default_rule = {},
         rules = {
             lua = {
-                comment = {'^--'},
+                comment = {'--'},
                 -- inherit pair rules
                 inherit = {'&{}', '&()'},
                 -- these patterns are the same as TextMate's
