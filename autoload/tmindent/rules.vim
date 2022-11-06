@@ -56,7 +56,7 @@ let s:rules_raw = {
   \     comment: ['--'],
   \     inherit: ['&{}', '&()', '&s_str', '&d_str'],
   \     increase: ['\v<%(if|else|while|for|function|then|do|repeat)>((<%(end|until)>)@!.)*$'],
-  \     decrease: ['^\v<%(elseif|else|end|until)>']
+  \     decrease: ['^\v<%(then|do|elseif|else|end|until)>']
   \   },
   \   'vim': #{
   \     comment: ['"'],

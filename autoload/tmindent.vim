@@ -160,13 +160,10 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   let prev_indent = s:get_buf_indent(a:buf, prev_lnum)
 
   if s:should_indent_one(lang, prev_line)
-    echo 'a'
     return prev_indent + 1
   elseif s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
-    echo 'b'
     return prev_indent + s:get_shift(a:buf)
   elseif s:should_decrease(lang, prev_line)
-    echo 'c'
     return prev_indent
   else
     if prev_lnum == 1
