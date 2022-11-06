@@ -43,6 +43,7 @@ function s:get_buf_line_processed(buf, lnum, lang) abort
   let processed = strpart(line, 0, comment_start)
 
   for pat in get(tmindent#rules#get(a:lang), "string", [])
+    " replace string content with space
     let processed = substitute(processed, pat, { m -> repeat(" ", len(m[0])) }, 'g')
   endfor
 
@@ -111,6 +112,15 @@ function s:should_decrease(lang, text) abort
   return v:false
 endfunction
 
+function s:should_indent_one(lang, text) abort
+  for pat in get(tmindent#rules#get(a:lang), "indentone", [])
+    if a:text =~# pat
+      return v:true
+    endif
+  endfor
+  return v:false
+endfunction
+
 function s:get_prev_valid_line(buf, lnum) abort
   let cur_lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
 
@@ -123,6 +133,11 @@ function s:get_prev_valid_line(buf, lnum) abort
       endif
 
       let line = s:get_buf_line_processed(a:buf, i, cur_lang)
+      " Special case: c multiline indent start
+      if s:is_comment_lang(prev_lang) && s:should_indent_one(cur_lang, line)
+        return i
+      endif
+
       if !s:should_ignore(cur_lang, line) && line !~# '^\s*$'
         return i
       endif
@@ -144,9 +159,14 @@ function s:get_inherit_indent_for_line(buf, lnum) abort
   let prev_line = s:get_buf_line_processed(a:buf, prev_lnum, lang)
   let prev_indent = s:get_buf_indent(a:buf, prev_lnum)
 
-  if s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
+  if s:should_indent_one(lang, prev_line)
+    echo 'a'
+    return prev_indent + 1
+  elseif s:should_increase(lang, prev_line) || s:should_indent_next(lang, prev_line)
+    echo 'b'
     return prev_indent + s:get_shift(a:buf)
   elseif s:should_decrease(lang, prev_line)
+    echo 'c'
     return prev_indent
   else
     if prev_lnum == 1

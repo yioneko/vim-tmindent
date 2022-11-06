@@ -26,10 +26,13 @@ let s:basic_rules_raw = {
   \     ],
   \   },
   \   '&s_str': #{
-  \       string: ['\v''@<=([^''\\]|\\.)*''@=']
+  \     string: ['\v''@<=([^''\\]|\\.)*''@=']
   \   },
   \   '&d_str': #{
-  \       string: ['\v"@<=([^"\\]|\\.)*"@=']
+  \     string: ['\v"@<=([^"\\]|\\.)*"@=']
+  \   },
+  \   '&cml_comment': #{
+  \     indentone: ['\/\*\(\(\*\/\)\@!.\)*$']
   \   }
   \ }
 
@@ -40,8 +43,8 @@ let s:default_rule_raw = #{
 
 let s:rules_raw = {
   \   'c': #{
-  \     comment: ['//', '^*'],
-  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
+  \     comment: ['//', '^\*'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str', '&cml_comment'],
   \     increase: ['\v<%(case|default)>.*\:\s*$'],
   \     decrease: ['\v<%(case|default)>.*\:\s*$'],
   \     indentnext: ['\v<%(if|while|for|switch)>((\;)@!.)*$'],
@@ -67,19 +70,18 @@ let s:rules_raw = {
   \     increase: ['\v<%(def|class|for|if|elif|else|while|try|with|finally|except|async)>.*\:\s*$'],
   \   },
   \   'html': #{
-  \     comment: ['<!--'],
   \     inherit: ['&tag', '&s_str', '&d_str'],
   \   },
   \   'vue': #{
-  \     inherit: ['html'],
+  \     inherit: ['html', 'javascript'],
   \   },
   \   'json': #{
   \     comment: ['//'],
-  \     inherit: ['&{}','&[]', '&d_str'],
+  \     inherit: ['&{}', '&[]', '&d_str'],
   \   },
   \   'css': #{
-  \     comment: ['^*'],
-  \     inherit: ['&{}', '&s_str', '&d_str'],
+  \     comment: ['^\*'],
+  \     inherit: ['&{}', '&s_str', '&d_str', '&cml_comment'],
   \   },
   \   'less': #{
   \     inherit: ['css'],
@@ -88,7 +90,7 @@ let s:rules_raw = {
   \     inherit: ['css'],
   \   },
   \   'javascript': #{
-  \     comment: ['//', '^*'],
+  \     comment: ['//', '^\*', '&cml_comment'],
   \     increase: ['\v<%(case|default)>.*\:\s*$'],
   \     decrease: ['\v<%(case|default)>.*\:\s*$'],
   \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
@@ -104,7 +106,7 @@ let s:rules_raw = {
   \   },
   \   'rust': #{
   \     comment: ['//', '^*'],
-  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
+  \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str', '&cml_comment'],
   \   },
   \   'yaml': #{
   \     comment: ['#'],
@@ -147,7 +149,8 @@ function s:build(raw_rule, conf) abort
   \   increase: get(a:raw_rule, "increase", []),
   \   decrease: get(a:raw_rule, "decrease", []),
   \   unindented: get(a:raw_rule, "unindented", []),
-  \   indentnext:  get(a:raw_rule, "indentnext", [])
+  \   indentnext:  get(a:raw_rule, "indentnext", []),
+  \   indentone:  get(a:raw_rule, "indentone", [])
   \ }
 
   let inherits = get(a:raw_rule, "inherit", [])
@@ -171,6 +174,9 @@ function s:build(raw_rule, conf) abort
     endfor
     for p in get(rhs, "indentnext", [])
       call add(res.indentnext, p)
+    endfor
+    for p in get(rhs, "indentone", [])
+      call add(res.indentone, p)
     endfor
   endfor
 
