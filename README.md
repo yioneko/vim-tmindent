@@ -12,33 +12,33 @@ See [available rules](./autoload/tmindent/rules.vim) for supported languages.
 
 ```vim
 let g:tmindent = {
-    \   'enabled': { -> index(["lua", "yaml"], &filetype) >= 0 },
-    \   'default_rule': {},
-    \   'rules': {
-    \       'json': #{ comment: ['//'], inherit: ['&{}', '&[]'] }
-    \   }
-    \}
+  \   'enabled': { -> index(["lua", "yaml"], &filetype) >= 0 },
+  \   'default_rule': {},
+  \   'rules': {
+  \       'json': #{ comment: ['//'], inherit: ['&{}', '&[]'] }
+  \   }
+  \ }
 ```
 
 ### Neovim (Lua)
 
 ```lua
 require('tmindent').setup({
-    enabled = function() return vim.tbl_contains({ "lua" }, vim.bo.filetype) end,
-    use_treesitter = function() return true end, -- used to detect different langauge region and comments
-    default_rule = {},
-    rules = {
-        lua = {
-            comment = {'--'},
-            -- inherit pair rules
-            inherit = {'&{}', '&()'},
-            -- these patterns are the same as TextMate's
-            increase = {'\v<%(else|function|then|do|repeat)>((<%(end|until)>)@!.)*$'},
-            decrease = {'^\v<%(elseif|else|end|until)>'},
-            unindented = {},
-            indentnext = {},
-        }
+  enabled = function() return vim.tbl_contains({ "lua" }, vim.bo.filetype) end,
+  use_treesitter = function() return true end, -- used to detect different langauge region and comments
+  default_rule = {},
+  rules = {
+    lua = {
+      comment = {'--'},
+      -- inherit pair rules
+      inherit = {'&{}', '&()'},
+      -- these patterns are the same as TextMate's
+      increase = {'\v<%(else|function|then|do|repeat)>((<%(end|until)>)@!.)*$'},
+      decrease = {'^\v<%(elseif|else|end|until)>'},
+      unindented = {},
+      indentnext = {},
     }
+  }
 })
 ```
 
@@ -62,11 +62,11 @@ local tm_fts = { "lua", "javascript", "python" } -- or any other langs
 require("nvim-treesitter.configs").setup {
   yati = {
     default_fallback = function(lnum, computed, bufnr)
-        if vim.tbl_contains(tm_fts, vim.bo[bufnr].filetype) then
-            return require('tmindent').get_indent(lnum, bufnr) + computed
-        end
-        -- or any other fallback methods
-        return require('nvim-yati.fallback').vim_auto(lnum, computed, bufnr)
+      if vim.tbl_contains(tm_fts, vim.bo[bufnr].filetype) then
+        return require('tmindent').get_indent(lnum, bufnr) + computed
+      end
+      -- or any other fallback methods
+      return require('nvim-yati.fallback').vim_auto(lnum, computed, bufnr)
     end,
   }
 }
@@ -74,14 +74,17 @@ require("nvim-treesitter.configs").setup {
 
 ## Rule
 
+[Reference from vscode](https://code.visualstudio.com/api/language-extensions/language-configuration-guide#indentation-rules)
+
 - `inherit`: list of other rules to extend
-- `comment`: pattern to match comment, which will be trimmed before following matching
+- `comment`: pattern to match comment, which will be trimmed before matching
+- `string`: pattern to match string content, which will be replaced by whitespace before matching
 - `increase`: `increaseIndentPattern` in TextMate
 - `decrease`: `decreaseIndentPattern` in TextMate
 - `unindented`: `unindentedLinePattern` in TextMate
 - `indentnext`: `indentNextLinePattern` in TextMate
 
-Basic rules include "&{}", "&[]", "&<>", "&tag".
+Basic rules include "&{}", "&[]", "&()", "&<>", "&tag".
 
 ## Credits
 
