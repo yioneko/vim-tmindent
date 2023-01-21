@@ -7,13 +7,6 @@ function s:should_use_treesitter() abort
   return g:tmindent.use_treesitter()
 endfunction
 
-function s:is_enabled() abort
-  if has("nvim")
-    return luaeval("require('tmindent').is_enabled()")
-  endif
-  return g:tmindent.enabled()
-endfunction
-
 function s:is_comment_lang(lang) abort
   return s:should_use_treesitter() && luaeval("require('tmindent').is_comment_lang(_A[1])", [a:lang])
 endfunction
@@ -205,10 +198,4 @@ endfunction
 
 function tmindent#indentexpr() abort
   return tmindent#get_indent(v:lnum, bufnr())
-endfunction
-
-function tmindent#attach() abort
-  if s:is_enabled()
-    setlocal indentexpr=tmindent#indentexpr()
-  endif
 endfunction
