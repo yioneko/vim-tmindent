@@ -68,6 +68,7 @@ let s:rules_raw = {
   \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \     increase: ['\v<%(def|class|for|if|elif|else|while|try|with|finally|except|async|match|case)>.*\:\s*$'],
   \     decrease: ['\v<%(elif|else|finally|except)>.*\:\s*$'],
+  \     indentasmax: v:true,
   \   },
   \   'html': #{
   \     inherit: ['&tag', '&s_str', '&d_str'],
@@ -150,7 +151,8 @@ function s:build(raw_rule, conf) abort
   \   decrease: get(a:raw_rule, "decrease", []),
   \   unindented: get(a:raw_rule, "unindented", []),
   \   indentnext:  get(a:raw_rule, "indentnext", []),
-  \   indentone:  get(a:raw_rule, "indentone", [])
+  \   indentone:  get(a:raw_rule, "indentone", []),
+  \   indentasmax:  get(a:raw_rule, "indentasmax", v:null)
   \ }
 
   let inherits = get(a:raw_rule, "inherit", [])
@@ -178,6 +180,11 @@ function s:build(raw_rule, conf) abort
     for p in get(rhs, "indentone", [])
       call add(res.indentone, p)
     endfor
+
+    let indentasmax = get(rhs, "indentasmax", v:null)
+    if indentasmax != v:null
+      let res.indentasmax = indentasmax
+    endif
   endfor
 
   return res

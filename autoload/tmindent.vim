@@ -182,17 +182,26 @@ endfunction
 function tmindent#get_indent(lnum, buf) abort
   let buf = a:buf == v:null ? bufnr() : a:buf
 
-  let indent = s:get_inherit_indent_for_line(buf, a:lnum)
-
   let lang = s:get_lang_at_line_exclude_comment(a:buf, a:lnum)
   let line = s:get_buf_line_processed(buf, a:lnum, lang)
 
-  if s:should_decrease(lang, line)
-    return indent - s:get_shift(buf)
-  elseif s:should_ignore(lang, line)
+  if s:should_ignore(lang, line)
     return 0
   else
-    return indent
+    let indent = s:get_inherit_indent_for_line(buf, a:lnum)
+
+    if s:should_decrease(lang, line)
+      let indent = indent - s:get_shift(buf)
+    endif
+
+    " deal with python indent, the calculated indent result should be viewed as the
+    " maximum indent, respect the current indent of nonblank line if possible
+    if get(tmindent#rules#get(lang), "indentasmax", v:false) && line !~# '^\s*$'
+      let cur_indent = s:get_buf_indent(buf, a:lnum)
+      return min([indent, cur_indent])
+    else
+      return indent
+    endif
   endif
 endfunction
 
