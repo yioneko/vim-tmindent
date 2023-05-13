@@ -67,6 +67,7 @@ let s:rules_raw = {
   \     comment: ['#'],
   \     inherit: ['&{}', '&()', '&[]', '&s_str', '&d_str'],
   \     increase: ['\v<%(def|class|for|if|elif|else|while|try|with|finally|except|async|match|case)>.*\:\s*$'],
+  \     decrease: ['\v<%(elif|else|finally|except)>.*\:\s*$'],
   \   },
   \   'html': #{
   \     inherit: ['&tag', '&s_str', '&d_str'],
